@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0",
+  "user_profile": {
+    "name": "Priya Sharma",
+    "age": 28,
+    "city": "Bangalore",
+    "monthly_income_inr": 120000,
+    "salary_credited_on": "1st of each month",
+    "stated_goal": "Save ₹15 lakh in 2 years for a house down payment in Bangalore"
+  },
+  "commitments": [
+    {
+      "summary": "Priya committed to transferring ₹30,000 to her house fund every month, starting November 25, 2025.",
+      "details": {
+        "amount_inr": 30000,
+        "cadence": "monthly",
+        "target": "house_fund",
+        "next_due": "2025-11-25"
+      },
+      "confidence": "stated_by_user",
+      "source_session": 1,
+      "created_at": "2025-11-03",
+      "id": "cmt_001",
+      "status": "active"
+    }
+  ],
+  "acknowledged_patterns": [
+    {
+      "summary": "Priya acknowledged she overspends on food delivery — ₹12,890 last month was worse than she expected.",
+      "details": {
+        "observation": "Food delivery spend of ₹12,890 in October (10 orders) was higher than Priya realized — more than groceries and fuel combined, at 10.7% of take-home salary."
+      },
+      "confidence": "stated_by_user",
+      "source_session": 1,
+      "created_at": "2025-11-03",
+      "id": "pat_001"
+    }
+  ],
+  "reminders_set": [
+    {
+      "reminder_id": "rem_29",
+      "date": "2025-11-25",
+      "content": "Transfer ₹30,000 to house fund today — your monthly commitment toward the ₹15 lakh down payment goal.",
+      "source_session": 1,
+      "created_at": "2025-11-03",
+      "status": "pending"
+    },
+    {
+      "reminder_id": "rem_1788",
+      "date": "2025-11-08",
+      "content": "MacBook decision deadline — colleague selling for ₹80,000. Review whether to buy now, negotiate a hold, or wait until January 2026.",
+      "source_session": 2,
+      "created_at": "2025-11-06",
+      "status": "pending"
+    }
+  ],
+  "session_log": [
+    {
+      "session_id": 1,
+      "date": "2025-11-03",
+      "summary": "1 new commitment; 1 new pattern; 1 new reminder"
+    },
+    {
+      "session_id": 2,
+      "date": "2025-11-06",
+      "summary": "1 new reminder"
+    }
+  ]
+}
