@@ -28,6 +28,7 @@ DEFAULT_MEMORY = {
     "commitments": [],
     "acknowledged_patterns": [],
     "reminders_set": [],
+    "profile_updates": [],
     "session_log": [],
 }
 
@@ -88,8 +89,14 @@ class Memory:
             field, value = details.get("field"), details.get("value")
             if field is None:
                 return {"status": "rejected", "reason": "profile_update requires details.field"}
+            prev_value = self.data["user_profile"].get(field)
             self.data["user_profile"][field] = value
-            entry["id"] = f"prof_{field}"
+            # Append an audit entry so provenance survives the mutation. Storing prev_value
+            # makes the change reversible and lets a future read explain what changed.
+            updates = self.data.setdefault("profile_updates", [])
+            entry["details"] = {"field": field, "from": prev_value, "to": value}
+            entry["id"] = f"prof_{field}_{len(updates) + 1:03d}"
+            updates.append(entry)
         return {"status": "stored", "kind": kind, "id": entry["id"]}
 
     def record_reminder(self, reminder_result: dict, session_id: int, date: str) -> None:
@@ -130,22 +137,32 @@ class Memory:
         return [r for r in self.data["reminders_set"] if r.get("status") == "pending"]
 
     def to_prompt_block(self) -> str:
+        """Render memory state for injection under the system prompt's
+        '## What I Know About {name}' section. Each entry shows ID + provenance
+        + date so the model can cite specifics; see the hedge comment below for
+        how inferred entries are visually distinguished."""
         p = self.data["user_profile"]
         lines = [
             f"- User: {p['name']}, age {p['age']}, {p['city']}.",
             f"- Stated goal: {p['stated_goal']}.",
             f"- Monthly post-tax income: ₹{p['monthly_income_inr']:,} (credited {p['salary_credited_on']}).",
         ]
+        # Render-time hedge on inferred entries. Without a visual signal, the model
+        # has no in-prompt way to weight a prior agent guess differently from a user
+        # statement — provenance becomes a label only. The "(UNVERIFIED INFERENCE)"
+        # prefix is the cheapest behavioral cue: paired with the constitution rule
+        # on provenance, it makes the tag a consumed mechanism, not just metadata.
+        hedge = lambda confidence: "(UNVERIFIED INFERENCE) " if confidence == "inferred_by_agent" else ""
         active = self.active_commitments()
         if active:
             lines.append("\nActive commitments (made by the user in prior sessions):")
             for c in active:
-                lines.append(f"  * [{c['id']}, {c['confidence']}, {c['created_at']}] {c['summary']}")
+                lines.append(f"  * [{c['id']}, {c['confidence']}, {c['created_at']}] {hedge(c['confidence'])}{c['summary']}")
         patterns = self.data["acknowledged_patterns"]
         if patterns:
             lines.append("\nPatterns the user has acknowledged:")
             for pat in patterns:
-                lines.append(f"  * [{pat['id']}, {pat['confidence']}] {pat['summary']}")
+                lines.append(f"  * [{pat['id']}, {pat['confidence']}] {hedge(pat['confidence'])}{pat['summary']}")
         pending = self.pending_reminders()
         if pending:
             lines.append("\nReminders the user has set:")

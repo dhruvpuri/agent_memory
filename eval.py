@@ -10,7 +10,6 @@ Usage: python eval.py
 Exit 0 = all PASS, 1 = any FAIL.
 """
 
-import re
 import sys
 from pathlib import Path
 
@@ -23,8 +22,14 @@ S1_BALANCE_MARKER = "128,000"
 
 
 def run_checks(text: str) -> list[tuple[str, bool, str]]:
-    """Returns list of (label, passed, detail_if_failed)."""
-    assistant_text = "\n".join(re.findall(r"\[assistant text\][^\[]*", text))
+    """Returns list of (label, passed, detail_if_failed).
+
+    The S1-balance check searches the whole transcript: Memory.to_prompt_block does not
+    render balances, generate_briefing does not render balances, and S2's own tools return
+    99820 — so '128000' or '128,000' can only show up if the model recalled it from S1.
+    A whole-text contains-check is more robust than parsing assistant blocks with a regex
+    that breaks on any `[` character inside the response.
+    """
     checks: list[tuple[str, bool, str]] = []
 
     checks.append((
@@ -48,9 +53,9 @@ def run_checks(text: str) -> list[tuple[str, bool, str]]:
         f"S2 transcript does not contain any of {S2_BALANCE_MARKERS}",
     ))
     checks.append((
-        "Response does NOT quote stale S1 balance (₹128,000)",
-        S1_BALANCE_MARKER not in assistant_text,
-        f"Assistant text contains stale S1 balance '{S1_BALANCE_MARKER}' — tool-vs-memory discipline broken",
+        "No stale S1 balance (₹128,000) anywhere in S2 transcript",
+        S1_BALANCE_MARKER not in text and "128000" not in text,
+        f"S2 transcript contains stale S1 balance '{S1_BALANCE_MARKER}' — tool-vs-memory discipline broken",
     ))
     checks.append((
         "₹30,000 commitment recalled from S1 memory",

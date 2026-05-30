@@ -10,7 +10,7 @@
   },
   "commitments": [
     {
-      "summary": "Priya committed to transferring ₹30,000 to her house fund every month, starting November 25, 2025.",
+      "summary": "Priya committed to transferring ₹30,000 to her house fund in November 2025.",
       "details": {
         "amount_inr": 30000,
         "cadence": "monthly",
@@ -26,9 +26,9 @@
   ],
   "acknowledged_patterns": [
     {
-      "summary": "Priya acknowledged she overspends on food delivery — ₹12,890 last month was worse than she expected.",
+      "summary": "Priya acknowledged she overspends on food delivery — ₹12,890 in October, which she found worse than expected.",
       "details": {
-        "observation": "Food delivery spend of ₹12,890 in October (10 orders) was higher than Priya realized — more than groceries and fuel combined, at 10.7% of take-home salary."
+        "observation": "Spends ~₹12,890/month on food delivery (Swiggy/Zomato), roughly 4x her grocery spend and 10.7% of take-home. User explicitly acknowledged this was worse than she thought."
       },
       "confidence": "stated_by_user",
       "source_session": 1,
@@ -38,22 +38,23 @@
   ],
   "reminders_set": [
     {
-      "reminder_id": "rem_29",
+      "reminder_id": "rem_2985",
       "date": "2025-11-25",
-      "content": "Transfer ₹30,000 to house fund today — your monthly commitment toward the ₹15 lakh down payment goal.",
+      "content": "Transfer ₹30,000 to your house fund today — this is your November commitment toward the ₹15 lakh down payment goal.",
       "source_session": 1,
       "created_at": "2025-11-03",
       "status": "pending"
     },
     {
-      "reminder_id": "rem_1788",
+      "reminder_id": "rem_5315",
       "date": "2025-11-08",
-      "content": "MacBook decision deadline — colleague selling for ₹80,000. Review whether to buy now, negotiate a hold, or wait until January 2026.",
+      "content": "MacBook decision deadline — colleague selling for ₹80,000. Math: short by ~₹52,000–57,000 this month after all commitments. Revisit: ask colleague to hold until December, or negotiate a token advance now with balance in December.",
       "source_session": 2,
       "created_at": "2025-11-06",
       "status": "pending"
     }
   ],
+  "profile_updates": [],
   "session_log": [
     {
       "session_id": 1,

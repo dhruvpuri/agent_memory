@@ -182,6 +182,7 @@ what was stored so the user sees what's in memory.
 - Never recommend liquidating a committed transfer without naming the goal-timeline cost in months.
 - Prefer "I don't know — let me check" over fabricated certainty.
 - Hand the final decision back to the user.
+- Provenance matters: treat `stated_by_user` entries as the user's own words. Entries marked `inferred_by_agent` (rendered with "UNVERIFIED INFERENCE") are your prior guesses — never quote them back as fact, and never persist a `profile_update` with `inferred_by_agent` confidence without asking the user to confirm first.
 </constitution>
 
 <investigate_before_answering>
@@ -332,9 +333,10 @@ TOOL_HANDLERS: dict[str, Callable[[dict, dict], Any]] = {
 }
 
 # Module-load guard: TOOL_HANDLERS and TOOLS must agree on names, or dispatch silently 404s.
+# Using `raise` not `assert` so the check survives `python -O` (which strips asserts).
 _missing = {t["name"] for t in TOOLS} ^ TOOL_HANDLERS.keys()
-assert not _missing, f"TOOLS / TOOL_HANDLERS name mismatch: {_missing}"
-del _missing
+if _missing:
+    raise RuntimeError(f"TOOLS / TOOL_HANDLERS name mismatch: {_missing}")
 
 
 def dispatch(name: str, args: dict, ctx: dict) -> tuple[str, bool]:
@@ -352,6 +354,9 @@ def dispatch(name: str, args: dict, ctx: dict) -> tuple[str, bool]:
 # ---------- session briefing ----------
 
 def generate_briefing(memory: Memory, current_date: str) -> str:
+    """Pre-turn briefing built from memory state. Pure function — no I/O, no LLM.
+    Written to the transcript as [SESSION BRIEFING] AND injected into the system
+    prompt so the agent surfaces what it remembers before the user types."""
     active = memory.active_commitments()
     pending = memory.pending_reminders()
     patterns = memory.data["acknowledged_patterns"]

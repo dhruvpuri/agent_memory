@@ -78,6 +78,17 @@ def main() -> int:
         if "Rs " in block:
             failures.append("prompt block still contains 'Rs ' instead of '₹'")
 
+        # Provenance defense — inferred entries must render with the hedge so the model
+        # treats them differently from stated_by_user entries. Without this, provenance
+        # is a label, not a defense.
+        m_inf = Memory(json.loads(json.dumps(m2.data)))  # cheap deep copy
+        m_inf.remember("acknowledged_pattern", "Agent guess: user prefers index funds",
+                       {"observation": "agent inferred from one comment"},
+                       "inferred_by_agent", session_id=1, date="2025-11-03")
+        block_inf = m_inf.to_prompt_block()
+        if "(UNVERIFIED INFERENCE)" not in block_inf:
+            failures.append("inferred_by_agent entries must render with '(UNVERIFIED INFERENCE)' hedge — provenance is a label, not a defense, without it")
+
     if failures:
         print("FAIL:")
         for f in failures:
